@@ -8,7 +8,7 @@
 
 ## Overview
 
-Shape Divider is a lightweight WordPress plugin that extends the core Group block with configurable shape dividers. Add beautiful wave, triangle, arrow, and curve shapes to the top and/or bottom of your sections without writing any code.
+Shape Divider is a lightweight WordPress plugin that extends the core Group and Cover blocks with configurable shape dividers. Add beautiful wave, triangle, arrow, and curve shapes to the top and/or bottom of your sections without writing any code.
 
 **Key Benefits:**
 - ✨ Native WordPress integration - works seamlessly with Block Editor
@@ -19,7 +19,7 @@ Shape Divider is a lightweight WordPress plugin that extends the core Group bloc
 
 ## Features
 
-### 6 Professional Shape Types
+### 7 Professional Shape Types
 
 - **Wave** - Classic smooth wave pattern
 - **Triangle** - Sharp, centered triangle
@@ -27,6 +27,12 @@ Shape Divider is a lightweight WordPress plugin that extends the core Group bloc
 - **Curve** - Gentle curved transition
 - **Waves Opacity** - Layered waves with opacity variations
 - **Asymmetric** - Modern asymmetric wave design
+- **Diagonal** - Simple slanted/angled transition
+
+### Block Support
+
+- **Group Block** - Add dividers to section containers
+- **Cover Block** - Add dividers to hero/cover sections with background images
 
 ### Flexible Configuration
 
@@ -65,7 +71,7 @@ Shape Divider is a lightweight WordPress plugin that extends the core Group bloc
 ### Quick Start
 
 1. **Edit a Page/Post** in the WordPress Block Editor
-2. **Add or select a Group block** where you want shape dividers
+2. **Add or select a Group or Cover block** where you want shape dividers
 3. **Open Block Settings** (right sidebar)
 4. **Find "Shape Divider" panel** in the settings
 5. **Enable Top or Bottom Divider** (or both)
@@ -82,13 +88,14 @@ Shape Divider is a lightweight WordPress plugin that extends the core Group bloc
 - Only active dividers render in the DOM
 
 #### Shape Selection
-Choose from 6 professionally designed shapes:
+Choose from 7 professionally designed shapes:
 - Wave (smooth, organic)
 - Triangle (sharp, centered)
 - Arrow (dynamic, directional)
 - Curve (gentle, flowing)
 - Waves Opacity (layered, depth)
 - Asymmetric (modern, unique)
+- Diagonal (simple, slanted transition)
 
 #### Color Control
 - **Native WordPress Color Picker** - Full access to theme colors and custom colors
@@ -163,12 +170,31 @@ window.NxtShapeDividerShapes = {
 	// Existing shapes...
 	customShape: {
 		label: 'My Custom Shape',
+		defaultHeight: 80,
 		svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120">...</svg>'
 	}
 };
 ```
 
 Use `{{COLOR}}` placeholder for dynamic color replacement.
+
+### Default Height per Shape
+
+Each shape has a `defaultHeight` property (in px). When you enable a divider or switch shapes, the height is taken from:
+1. **Last used value** (stored in WordPress options table) – shared across all users, e.g. if someone set Arrow to 50px, all team members get that value
+2. **Shape default** – from `shapes.js` when no saved value exists
+
+| Shape         | Default |
+|---------------|---------|
+| Wave          | 100px   |
+| Triangle      | 60px    |
+| Arrow         | 65px    |
+| Curve         | 100px   |
+| Waves Opacity | 100px   |
+| Asymmetric    | 80px    |
+| Diagonal      | 60px    |
+
+This keeps a consistent design when you use the same shape across multiple pages. Adjust defaults in `assets/svg/shapes.js`.
 
 ### CSS Customization
 

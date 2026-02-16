@@ -8,17 +8,44 @@
 	const { Fragment, createElement } = wp.element;
 	const { __ } = wp.i18n;
 
+	const { apiFetch } = wp;
 	const shapes = window.NxtShapeDividerShapes || {};
 	const shapeOptions = Object.keys(shapes).map(key => ({
 		label: shapes[key].label,
 		value: key
 	}));
 
+	const supportedBlocks = ['core/group', 'core/cover'];
+
+	const config = window.nxtShapeDividerConfig ?? {};
+	let heightsCache = { ...(config.heights ?? {}) };
+
+	function getHeightForShape(shape) {
+		const stored = heightsCache[shape];
+		if (typeof stored === 'number' && stored >= 20 && stored <= 200) {
+			return stored;
+		}
+		return shapes[shape]?.defaultHeight ?? 100;
+	}
+
+	function setStoredHeight(shape, height) {
+		heightsCache[shape] = height;
+		apiFetch({
+			path: 'nxt-shape-divider/v1/heights',
+			method: 'POST',
+			data: { heights: heightsCache }
+		}).catch(() => {});
+	}
+
+	function isSupportedBlock(name) {
+		return supportedBlocks.includes(name);
+	}
+
 	addFilter(
 		'blocks.registerBlockType',
 		'nxt-shape-divider/add-attributes',
 		(settings, name) => {
-			if (name !== 'core/group') {
+			if (!isSupportedBlock(name)) {
 				return settings;
 			}
 
@@ -81,7 +108,7 @@
 
 	const withShapeDividerControls = createHigherOrderComponent((BlockEdit) => {
 		return (props) => {
-			if (props.name !== 'core/group') {
+			if (!isSupportedBlock(props.name)) {
 				return createElement(BlockEdit, props);
 			}
 
@@ -112,12 +139,18 @@
 						PanelBody,
 						{
 							title: __('Shape Divider', 'nxt-shape-divider'),
-							initialOpen: false
+							initialOpen: enableTopDivider || enableBottomDivider
 						},
 						createElement(ToggleControl, {
 							label: __('Enable Top Divider', 'nxt-shape-divider'),
 							checked: enableTopDivider,
-							onChange: (value) => setAttributes({ enableTopDivider: value })
+							onChange: (value) => {
+								const updates = { enableTopDivider: value };
+								if (value) {
+									updates.topDividerHeight = getHeightForShape(topDividerShape);
+								}
+								setAttributes(updates);
+							}
 						}),
 						enableTopDivider && createElement(
 							Fragment,
@@ -126,12 +159,18 @@
 								label: __('Shape', 'nxt-shape-divider'),
 								value: topDividerShape,
 								options: shapeOptions,
-								onChange: (value) => setAttributes({ topDividerShape: value })
+								onChange: (value) => setAttributes({
+									topDividerShape: value,
+									topDividerHeight: getHeightForShape(value)
+								})
 							}),
 							createElement(RangeControl, {
 								label: __('Height (px)', 'nxt-shape-divider'),
 								value: topDividerHeight,
-								onChange: (value) => setAttributes({ topDividerHeight: value }),
+								onChange: (value) => {
+									setStoredHeight(topDividerShape, value);
+									setAttributes({ topDividerHeight: value });
+								},
 								min: 20,
 								max: 200,
 								step: 5
@@ -163,7 +202,13 @@
 						createElement(ToggleControl, {
 							label: __('Enable Bottom Divider', 'nxt-shape-divider'),
 							checked: enableBottomDivider,
-							onChange: (value) => setAttributes({ enableBottomDivider: value })
+							onChange: (value) => {
+								const updates = { enableBottomDivider: value };
+								if (value) {
+									updates.bottomDividerHeight = getHeightForShape(bottomDividerShape);
+								}
+								setAttributes(updates);
+							}
 						}),
 						enableBottomDivider && createElement(
 							Fragment,
@@ -172,12 +217,18 @@
 								label: __('Shape', 'nxt-shape-divider'),
 								value: bottomDividerShape,
 								options: shapeOptions,
-								onChange: (value) => setAttributes({ bottomDividerShape: value })
+								onChange: (value) => setAttributes({
+									bottomDividerShape: value,
+									bottomDividerHeight: getHeightForShape(value)
+								})
 							}),
 							createElement(RangeControl, {
 								label: __('Height (px)', 'nxt-shape-divider'),
 								value: bottomDividerHeight,
-								onChange: (value) => setAttributes({ bottomDividerHeight: value }),
+								onChange: (value) => {
+									setStoredHeight(bottomDividerShape, value);
+									setAttributes({ bottomDividerHeight: value });
+								},
 								min: 20,
 								max: 200,
 								step: 5
@@ -240,7 +291,7 @@
 
 	const withShapeDividerPreview = createHigherOrderComponent((BlockListBlock) => {
 		return (props) => {
-			if (props.name !== 'core/group') {
+			if (!isSupportedBlock(props.name)) {
 				return createElement(BlockListBlock, props);
 			}
 
@@ -325,7 +376,7 @@
 		'blocks.getSaveContent.extraProps',
 		'nxt-shape-divider/save-data',
 		(extraProps, blockType, attributes) => {
-			if (blockType.name !== 'core/group') {
+			if (!isSupportedBlock(blockType.name)) {
 				return extraProps;
 			}
 

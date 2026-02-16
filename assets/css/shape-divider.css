@@ -1,7 +1,11 @@
 .wp-block-group:has([data-shape-divider-top]),
 .wp-block-group:has([data-shape-divider-bottom]),
 .wp-block-group[data-shape-divider-top],
-.wp-block-group[data-shape-divider-bottom] {
+.wp-block-group[data-shape-divider-bottom],
+.wp-block-cover:has([data-shape-divider-top]),
+.wp-block-cover:has([data-shape-divider-bottom]),
+.wp-block-cover[data-shape-divider-top],
+.wp-block-cover[data-shape-divider-bottom] {
 	position: relative;
 	overflow: visible;
 }

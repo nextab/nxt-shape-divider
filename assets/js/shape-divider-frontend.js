@@ -59,8 +59,8 @@
 		return '#' + hex(rgbMatch[1]) + hex(rgbMatch[2]) + hex(rgbMatch[3]);
 	}
 
-	function createShapeDivider(groupElement, position, config) {
-		const color = config.color || getComputedBackgroundColor(groupElement);
+	function createShapeDivider(blockElement, position, config) {
+		const color = config.color || getComputedBackgroundColor(blockElement);
 		const svg = getShapeSVG(config.shape, color, config.flip, config.invert);
 
 		if (!svg) {
@@ -89,38 +89,41 @@
 		divider.innerHTML = svg;
 
 		if (position === 'top') {
-			groupElement.insertBefore(divider, groupElement.firstChild);
+			blockElement.insertBefore(divider, blockElement.firstChild);
 		} else {
-			groupElement.appendChild(divider);
+			blockElement.appendChild(divider);
 		}
 	}
 
 	function initShapeDividers() {
-		const groups = document.querySelectorAll('.wp-block-group[data-shape-divider-top], .wp-block-group[data-shape-divider-bottom]');
+		const blocks = document.querySelectorAll(
+			'.wp-block-group[data-shape-divider-top], .wp-block-group[data-shape-divider-bottom], ' +
+			'.wp-block-cover[data-shape-divider-top], .wp-block-cover[data-shape-divider-bottom]'
+		);
 
-		groups.forEach(group => {
-			const computedStyle = window.getComputedStyle(group);
+		blocks.forEach(block => {
+			const computedStyle = window.getComputedStyle(block);
 			const currentPosition = computedStyle.position;
-			
+
 			if (currentPosition === 'static') {
-				group.style.position = 'relative';
+				block.style.position = 'relative';
 			}
 
-			const topData = group.getAttribute('data-shape-divider-top');
+			const topData = block.getAttribute('data-shape-divider-top');
 			if (topData) {
 				try {
 					const config = JSON.parse(topData);
-					createShapeDivider(group, 'top', config);
+					createShapeDivider(block, 'top', config);
 				} catch (e) {
 					console.error('Failed to parse top divider data:', e);
 				}
 			}
 
-			const bottomData = group.getAttribute('data-shape-divider-bottom');
+			const bottomData = block.getAttribute('data-shape-divider-bottom');
 			if (bottomData) {
 				try {
 					const config = JSON.parse(bottomData);
-					createShapeDivider(group, 'bottom', config);
+					createShapeDivider(block, 'bottom', config);
 				} catch (e) {
 					console.error('Failed to parse bottom divider data:', e);
 				}
